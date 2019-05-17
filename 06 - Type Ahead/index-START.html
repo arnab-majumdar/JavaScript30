@@ -29,35 +29,78 @@ function findMatch(word, cities){
             return place.city.match(regex) ||  place.state.match(regex)
           });
 }
+
+//also needs to sort by distance
+
+function distance(lat1, lon1, lat2, lon2) {
+  var p = 0.017453292519943295;    // Math.PI / 180
+  var c = Math.cos;
+  var a = 0.5 - c((lat2 - lat1) * p)/2 +
+          c(lat1 * p) * c(lat2 * p) *
+          (1 - c((lon2 - lon1) * p))/2;
+
+  return Math.round(12742 * Math.asin(Math.sqrt(a))); // 2 * R; R = 6371 km
+}
+
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
-
+var dist;
 function displayItem(){
   const matchArr = findMatch(this.value, cities);
-  console.log(matchArr);
+  // console.log(matchArr);
+
+
+
+
+  //get geolocation  of city Match an d State Match
+
+
+  //find distance and sort by distance
+
+
   const html = matchArr.map(place => {
   // const placeName = place.city;
   // const stateName = place.state;
   // const pop = place.population;
-
+    const lati = place.latitude;
+    const long = place.longitude;
+    console.log(lati, long);
     const regex = new RegExp(this.value, 'gi');
     const placeName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
     const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
+    //get geolocation of current place
 
-    return `
+    if ("geolocation" in navigator) {
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+        // console.log(position.coords.latitude, position.coords.longitude);
+          dist = distance(position.coords.latitude, position.coords.longitude, lati, long);
+          console.log('line 85 ', dist);
+          });
+
+      return ` <li><span>${placeName}, ${stateName} </span> <span> Population: ${numberWithCommas(place.population)} <br> ${dist} miles from your location</li>`
+
+
+
+
+    } else {
+      console.log(" geolocation is NOT available " );
+
+      return `
       <li>
-        <span>${placeName}, ${stateName} </span>
+       <span>${placeName}, ${stateName} </span>
        <span> ${numberWithCommas(place.population)} </span>
        </li>
     `
-  })
+    }
+
+  });
 
   return  suggestions.innerHTML = html;
 
 
-
-}
+} //end of display item
 
 var searched = document.querySelector('.search');
 searched.addEventListener('change', displayItem);
@@ -65,6 +108,11 @@ searched.addEventListener('keyup', displayItem);
 
 var suggestions = document.querySelector('.suggestions');
 // suggestions.innerHTML = something
+
+
+
+
+
 
 </script>
 </body>
