@@ -5,14 +5,111 @@
   <title>HTML5 Canvas</title>
 </head>
 <body>
+<h1 id="instruction"> Write Something by pressing your mouse! </h1>
+<button type="button" id="darkMode">Dark Mode!</button>
+<button type="button" id="lightMode">Light Mode!</button>
 <canvas id="draw" width="800" height="800"></canvas>
 <script>
+const canvas = document.querySelector('#draw');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+ctx.strokeStyle = '#BADA55';
+ctx.lineJoin = 'miter'; //play around - round, bevel, miter
+ctx.lineCap = 'square'; //play around- round, butt, square
+
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+
+ctx.lineWidth = 50;
+
+let hue = 0; //for color, using mother effing hsl website
+
+function draw(e){
+  if(!isDrawing) return; //stops the function when not drawing with mouse down
+  document.getElementById('instruction').style.display="none";
+
+  document.getElementById('darkMode').style.display="block";
+  ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+
+  // console.log(e);
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+  [lastX, lastY] = [e.offsetX, e.offsetY]; //destructuring
+  hue++;
+  if(hue >= 360){
+    hue = 0;
+  }
+}
+
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mousedown', (e) => {
+  isDrawing=true;
+  [lastX, lastY] = [e.offsetX, e.offsetY];
+});
+canvas.addEventListener('mouseup',  () => isDrawing=false);
+canvas.addEventListener('mouseout',  () => isDrawing=false);
+
+function darkMode(e){
+  console.log(e);
+  document.getElementById('draw').style.background="black";
+  document.querySelector('body').style.background="black";
+  document.getElementById('darkMode').style.display="none";
+  document.getElementById('lightMode').style.display="block";
+}
+
+document.querySelector('#darkMode').addEventListener('click', darkMode);
+
+
+function lightMode(e){
+  console.log(e);
+  document.getElementById('draw').style.background="white";
+  document.querySelector('body').style.background="white";
+  document.getElementById('lightMode').style.display="none";
+  document.getElementById('darkMode').style.display="block";
+}
+document.querySelector('#lightMode').addEventListener('click', lightMode);
+
 </script>
 
 <style>
   html, body {
     margin: 0;
   }
+  #instruction{
+    text-align: center;
+    font-family: 'Pacifico', cursive;
+    color: #018DED;
+  }
+  #darkMode{
+    background-color: #000000;
+    border: none;
+    color: white;
+    padding: 15px 25px;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    align-content: center;
+    margin-left:48%;
+    margin-top: 10px;
+    display:none;
+  }
+  #lightMode{
+    background-color: #ffffff;
+    border: none;
+    color: black;
+    padding: 15px 25px;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    align-content: center;
+    margin-left:48%;
+    margin-top: 10px;
+    display:none;
+  }
+
 </style>
 
 </body>
